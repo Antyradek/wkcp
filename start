@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# Uruchamia serwer testowo
+
+python -m http.server --cgi 8080 -d run
