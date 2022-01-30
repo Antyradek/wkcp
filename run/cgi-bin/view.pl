@@ -14,28 +14,28 @@ my %PROBLEMFIX = (26 => 1);
 # problem po spowolnieniu czasu
 # problem po przyspieszeniu czasu
 my %PROBLEMLIST = (
-	0 => [4, 5],
-	1 => [6, 6],
-	2 => [7, 7],
-	3 => [8, 9],
-	4 => [10, 11],
-	5 => [11, 12],
-	6 => [12, 26],
-	7 => [26, 13],
-	8 => [13, 14],
-	9 => [14, 15],
-	10 => [10, 10],
-	11 => [16, 17],
-	12 => [17, 18],
-	13 => [19, 20],
-	14 => [20, 21],
-	15 => [15, 15],
-	16 => [0, 0],
-	17 => [0, 1],
-	18 => [0, 2],
-	19 => [1, 3],
-	20 => [2, 3],
-	21 => [3, 3],
+	0 => [4, 5, "Wielka kometa zmierza w stronę planety. Jeśli przyspieszysz czas, niewątpliwie przeleci bokiem, ale wtedy planeta wpadnie na jej ogon. Jeśli odwrócisz czas, kometa zacznie lecieć w przeciwnym kierunku, co może wpłynąć na orbitę planety.", "Planeta wpadła w warkocz komety, asteroidy z pyłu zaczęły nawiedzać cywilizację.", "Kometa odwróciła swój bieg, co zachwiało grawitacją, a orbita planety przybliżyła się do gwiazdy."],
+	1 => [6, 6, "", "", ""],
+	2 => [7, 7, "", "", ""],
+	3 => [8, 9, "", "", ""],
+	4 => [10, 11, "Asteroidy", "", ""],
+	5 => [11, 12, "Zmiana orbity", "", ""],
+	6 => [12, 26, "", "", ""],
+	7 => [26, 13, "", "", ""],
+	8 => [13, 14, "", "", ""],
+	9 => [14, 15, "", "", ""],
+	10 => [10, 10, "", "", ""],
+	11 => [16, 17, "", "", ""],
+	12 => [17, 18, "", "", ""],
+	13 => [19, 20, "", "", ""],
+	14 => [20, 21, "", "", ""],
+	15 => [15, 15, "", "", ""],
+	16 => [0, 0, "", "", ""],
+	17 => [0, 1, "", "", ""],
+	18 => [0, 2, "", "", ""],
+	19 => [1, 3, "", "", ""],
+	20 => [2, 3, "", "", ""],
+	21 => [3, 3, "", "", ""],
 );
 
 my $c = CGI->new;
@@ -216,14 +216,17 @@ sub runCore
 	my $randindex = int(rand(@freeplanets));
 	my $randplanet = $freeplanets[$randindex];
 	my $currentproblem = $planetproblem{$randplanet};
+	my $problemtext = $PROBLEMLIST{$currentproblem}[2];
 
 	# Ustawienie ostatniego czasu
 	$planetuse{$randplanet} = $timestamp;
 
 	print "<h2>Planeta $planetname{$randplanet} potrzebuje twojej pomocy!</h2>";
 	
-	print "<a href='?id=$randplanet&problem=$currentproblem&action=backward'>Cofnij czas</a>\n";
-	print "<a href='?id=$randplanet&problem=$currentproblem&action=forward'>Przyspiesz czas</a>\n";
+	print "<p>$problemtext</p>\n";
+	
+	print "<p><a href='?id=$randplanet&problem=$currentproblem&action=backward'>Cofnij czas</a></p>\n";
+	print "<p><a href='?id=$randplanet&problem=$currentproblem&action=forward'>Przyspiesz czas</a></p>\n";
 	
 	print "<h2>Dotychczasowa historia tej cywilizacji:</h2>\n";
 	readLog($randplanet);
@@ -234,6 +237,9 @@ sub runReaction
 	my $id = $_[0];
 	my $forward = $_[1];
 	my $problem = $_[2];
+	my $problemtext = $PROBLEMLIST{$problem}[2];
+	my $reversesolution = $PROBLEMLIST{$problem}[3];
+	my $forwardsolution = $PROBLEMLIST{$problem}[4];
 	if($problem != $planetproblem{$id})
 	{
 		printError;
@@ -243,10 +249,14 @@ sub runReaction
 	if($forward)
 	{
 		print "<h2>Użyłeś czasoprzestrzennych mocy, aby przyspieszyć upływ czasu</h2>\n";
+		print "<p>$forwardsolution</p>\n";
+		appendLog($id, $forwardsolution);
 	}
 	else
 	{
 		print "<h2>Odwróciłeś bieg wydarzeń za pomocą swojej mocy</h2>\n";
+		print "<p>$reversesolution</p>\n";
+		appendLog($id, $reversesolution);
 	}
 	my $currentproblem = $planetproblem{$id};
 	my $nextproblem = $PROBLEMLIST{$currentproblem}[$forward];
@@ -263,9 +273,6 @@ sub runReaction
 		print "<p>Cywilizacja planety $planetname{$id} została permanentnie ocalona.</p>";
 		$planetalive{$id} = 0;
 	}
-	
-	# TODO opis zdarzenia
-	appendLog($id, "Zmiana problemu $currentproblem → $nextproblem");
 	
 	print "<a href='?'>Zamąć czasoprzestrzenią ponownie</a>";
 }
