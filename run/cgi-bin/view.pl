@@ -122,6 +122,37 @@ sub readDatabase
 	sort @sortids;
 }
 
+sub readLog
+{
+	# Odczyt logów
+	my $id = $_[0];
+	my $filename = "log" . "$id";
+	if(! -e $filename)
+	{
+		open(my $logfile, ">", $filename) or die "Nie można stworzyć pliku logu";
+		print $logfile "Planeta $planetname{$id} zdobyła uwagę Króla Czasoprzestrzeni.\n";
+		close($filename);
+	}
+	open(my $logfile, "<", $filename) or die "Nie można otworzyć pliku logu";
+	while(<$logfile>)
+	{
+		my $line = $_;
+		print "<p>$line</p>\n";
+	}
+	close($logfile);
+}
+
+sub appendLog
+{
+	# Doklejenie logów
+	my $id = $_[0];
+	my $text = $_[1];
+	my $filename = "log" . "$id";
+	open(my $logfile, ">>", $filename) or die "Nie można dodać pliku logu";
+	print $logfile $text . "\n";
+	close($filename);
+}
+
 sub writeDatabase
 {
 	# Zrzut do bazy
@@ -193,6 +224,9 @@ sub runCore
 	
 	print "<a href='?id=$randplanet&problem=$currentproblem&action=backward'>Cofnij czas</a>\n";
 	print "<a href='?id=$randplanet&problem=$currentproblem&action=forward'>Przyspiesz czas</a>\n";
+	
+	print "<h2>Dotychczasowa historia tej cywilizacji:</h2>\n";
+	readLog($randplanet);
 }
 
 sub runReaction
@@ -229,7 +263,9 @@ sub runReaction
 		print "<p>Cywilizacja planety $planetname{$id} została permanentnie ocalona.</p>";
 		$planetalive{$id} = 0;
 	}
-	print "Problemy $currentproblem → $nextproblem\n";
+	
+	# TODO opis zdarzenia
+	appendLog($id, "Zmiana problemu $currentproblem → $nextproblem");
 	
 	print "<a href='?'>Zamąć czasoprzestrzenią ponownie</a>";
 }
