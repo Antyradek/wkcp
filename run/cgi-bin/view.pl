@@ -167,9 +167,26 @@ sub writeDatabase
 	close($planets);
 }
 
+sub restartUniverse
+{
+	# Resetowanie wszechświata
+	foreach(@sortids)
+	{
+		my $id = $_;
+		$planetalive{$id} = 1;
+		$planetproblem{$id} = int(rand(keys %PROBLEMLIST));
+		appendLog($id, "Czasoprzestrzeń postanowiła zadbać o samą siebie poprzez zresetowanie wszechświata. Twoje próby powstrzymania jej skończyły się na tym, że każda planeta została nawiedzona przez losową katastrofę. Masz teraz dużo do roboty, Królu Czasoprzestrzeni.");
+	}
+
+	print "<h2>Wszechświat jest martwy. Twoje akcje, Królu Czasoprzestrzeni, spowodowały zagładę i ocalenie wszystkich planet, jakie istnieją.</h2>\n";
+	print "<p>Czasoprzestrzeń postanowiła zresetować samą siebie, nie bacząc na ciebie, Królu Czasoprzestrzeni. Nie możesz nic z tym zrobić.</p>\n";
+	print "<p><a href='?'>Możesz tylko stać i patrzeć</a></p>\n";
+}
+
 sub runCore
 {
 	my @freeplanets = ();
+	my $universedead = 1;
 	foreach(@sortids)
 	{
 		my $id = $_;
@@ -177,6 +194,16 @@ sub runCore
 		{
 			push(@freeplanets, $id);
 		}
+		if($planetalive{$id} >= 0)
+		{
+			$universedead = 0;
+		}
+	}
+	
+	if($universedead)
+	{
+		restartUniverse;
+		return;
 	}
 	
 	# Wypisz wszystkie światy
